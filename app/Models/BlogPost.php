@@ -8,10 +8,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class BlogPost extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['title', 'content',];
-    
+
     public function comment() {
         return $this->hasMany('App\Models\Comment');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function (BlogPost $blogPost) {
+           $blogPost->comment()->delete();
+        });
     }
 }

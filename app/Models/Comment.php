@@ -9,8 +9,8 @@ class Comment extends Model
 {
     use HasFactory;
 
-    public function BlogPost() {
-        return $this->belongsTo('App\Models\BlogPost');    
+    public function blogPost() {
+        return $this->belongsTo('App\Models\BlogPost');
     }
     protected $fillable = ['content','blog_post_id'];
 }
