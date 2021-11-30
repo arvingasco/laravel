@@ -9,7 +9,10 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    protected function user() {
-        return User::factory()->create();
+    protected function user()
+    {
+        return User::factory()->create([
+            'is_admin' => 1,
+        ]);
     }
 }

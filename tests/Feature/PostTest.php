@@ -4,8 +4,9 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use app\models\BlogPost;
+use App\Models\BlogPost;
 use App\Models\Comment;
+use App\Models\User;
 
 class PostTest extends TestCase
 {
@@ -13,32 +14,28 @@ class PostTest extends TestCase
 
     public function testNoBlogPostsWhenNothingInDatabase()
     {
-        $response = $this -> get('/posts');
+        $response = $this->get('/posts');
 
-        $response -> assertSeeText('No memes found!');
+        $response->assertSeeText('No memes found!');
     }
 
     public function testSee1MemeWhenThereIs1WithoutComments() {
-        $post = $this -> createDummyBlogPost();
+        $this->createDummyBlogPost();
 
-        $response = $this -> get('/posts');
+        $response = $this->get('/posts');
 
-        $response -> assertSeeText('New Title');
-        $response->assertSeeText('No comments.');
-        $this -> assertDatabaseHas('blog_posts', [
+        $response->assertSeeText('New Title');
+        $response->assertSeeText('No comments');
+        $this->assertDatabaseHas('blog_posts', [
             'title' => 'New Title'
         ]);
     }
 
     public function testSee1MemeWithComments() {
-        $post=$this->createDummyBlogPost();
-        for ($i = 1; $i <= 4; $i++) {
-            Comment::factory()->create([
-                'blog_post_id' => $post->id,
-            ]);
-        }
+        $this->createDummyBlogPost();
+        BlogPost::factory()->hasComment(4)->create();
 
-        $response=$this->get('/posts');
+        $response = $this->get('/posts');
         $response->assertSeeText('4 comments');
     }
 
@@ -69,48 +66,53 @@ class PostTest extends TestCase
 
         $messages = session('errors') -> getMessages();
 
-        $this -> assertEquals($messages['title'][0], 'The title must be at least 5 characters.');
-        $this -> assertEquals($messages['content'][0], 'The content must be at least 10 characters.');
+        $this->assertEquals($messages['title'][0], 'The title must be at least 5 characters.');
+        $this->assertEquals($messages['content'][0], 'The content must be at least 10 characters.');
     }
 
     public function testUpdateValid() {
-        $post = $this -> createDummyBlogPost();
-
-        $this -> assertDatabaseHas('blog_posts', $post -> getAttributes());
+        $user = $this->user();
+        $post = $this->createDummyBlogPost($user->id);
+        $this->assertDatabaseHas('blog_posts', $post->getAttributes());
 
         $params = [
             'title' => 'A new named title',
             'content' => 'Content was changed',
         ];
 
-        $this->actingAs($this->user())
-            ->put("/posts/{$post -> id}", $params)
+        $this->actingAs($user)
+            ->put("/posts/{$post->id}", $params)
             ->assertStatus(302)
             ->assertSessionHas('status');
 
-        $this -> assertEquals(session('status'), 'Meme was successfully updated!');
-        $this -> assertDatabaseMissing('blog_posts', $post -> getAttributes());
-        $this -> assertDatabaseHas('blog_posts', [
+        $this->assertEquals(session('status'), 'Meme was successfully updated!');
+        $this->assertDatabaseMissing('blog_posts', $post->getAttributes());
+        $this->assertDatabaseHas('blog_posts', [
             'title' => 'A new named title',
         ]);
     }
 
     public function testDelete() {
-        $post = $this -> createDummyBlogPost();
-        $this -> assertDatabaseHas('blog_posts', $post -> getAttributes());
+        $user = User::factory()->create([
+            'is_admin' => true,
+        ]);
+        $post = BlogPost::factory()->create([
+            'user_id' => $user->id,
+        ]);
+        $this->assertDatabaseHas('blog_posts', $post->getAttributes());
 
-        $this->actingAs($this->user())
+        $this->actingAs($user)
             ->delete("/posts/{$post -> id}")
             ->assertStatus(302)
             ->assertSessionHas('status');
 
-        $this -> assertEquals(session('status'), 'Meme was successfully deleted.');
-        $this -> assertDatabaseMissing('blog_posts', $post -> getAttributes());
+        $this->assertEquals(session('status'), 'Meme was successfully deleted.');
+        $this->assertSoftDeleted('blog_posts', $post->getAttributes());
     }
 
-    private function createDummyBlogPost(): BlogPost {
-        $post = BlogPost::factory()->newTitle()->create();
-
-        return $post;
+    private function createDummyBlogPost($userId = null): BlogPost {
+        return BlogPost::factory()->newTitle()->create([
+            'user_id' => $userId ?? $this->user()->id,
+        ]);
     }
 }

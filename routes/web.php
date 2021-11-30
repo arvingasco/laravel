@@ -16,11 +16,13 @@ use Illuminate\Support\Facades\Auth;
 | contains the "web" middleware group. Now create something great!
 |
 */
- 
+
 Route::get('/', [HomeController::class, 'home'])->name('home.index');
 Route::get('/contact', [HomeController::class, 'contact'])->name('home.contact');
 Route::get('/about', [HomeController::class, 'about'])->name('home.about');
+Route::get('/personalContact', [HomeController::class, 'personalContact'])
+    ->name('home.personalContact')
+    ->middleware('can:home.personalContact');
 Route::resource('posts', PostsController::class);
-    // ->middleware('auth');
 
 Auth::routes();

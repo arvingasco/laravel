@@ -6,16 +6,23 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    public function home() {
-        // Auth::id();
+    public function home()
+    {
         return view('home.index');
     }
 
-    public function contact() {
+    public function contact()
+    {
         return view('home.contact');
     }
 
-    public function about() {
+    public function personalContact()
+    {
+        return view('home.personalContact');
+    }
+
+    public function about()
+    {
         return view('home.about');
     }
 }
