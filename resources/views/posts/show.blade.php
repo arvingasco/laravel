@@ -6,7 +6,8 @@
 <h1>{{  $post -> title }}</h1>
 <p>{{  $post -> content }}</p>
 <p class = "text-muted">
-    Posted {{  $post -> created_at -> diffForHumans() }}. <br>
+    Posted {{  $post -> created_at -> diffForHumans() }}
+    by {{  $post->user->name }}. <br>
     Last updated {{ $post ->updated_at->diffForHumans() }}.
 </p>
 

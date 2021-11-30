@@ -1,10 +1,10 @@
 <?php
 
 namespace Database\Factories;
- 
+
 use App\Models\Comment;
 use Illuminate\Database\Eloquent\Factories\Factory;
- 
+
 class CommentFactory extends Factory
 {
     /**
@@ -13,7 +13,7 @@ class CommentFactory extends Factory
      * @var string
      */
     protected $model = \App\Models\Comment::class;
- 
+
     /**
      * Define the model's default state.
      *
@@ -22,9 +22,7 @@ class CommentFactory extends Factory
     public function definition()
     {
         return [
-            'content' => $this->faker->realText()
+            'content' => $this->faker->realText(30)
         ];
     }
 }
-// tinker
-// Comment::factory()->create(['blog_post_id'=>1])

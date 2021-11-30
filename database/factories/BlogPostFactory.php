@@ -13,7 +13,7 @@ class BlogPostFactory extends Factory
      * @var string
      */
     protected $model = \App\Models\BlogPost::class;
- 
+
     /**
      * Define the model's default state.
      *
@@ -30,9 +30,6 @@ class BlogPostFactory extends Factory
     public function newTitle() {
         return $this->state([
             'title' => 'New Title',
-            // 'content' => 'Content of the blog post',
         ]);
     }
 }
-// tinker
-//BlogPost::factory()->create();
