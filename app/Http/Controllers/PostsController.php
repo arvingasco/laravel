@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePost;
 use App\Models\BlogPost;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,11 @@ class PostsController extends Controller
     {
         return view(
             'posts.index',
-            ['posts' => BlogPost::withCount('comment')->get()]
+            [
+                'posts' => BlogPost::latest()->withCount('comment')->get(),
+                'mostCommented' => BlogPost::mostCommented()->take(5)->get(),
+                'mostActive' => User::withMostBlogPosts()->take(5)->get(),
+            ]
         );
     }
 
@@ -48,6 +53,7 @@ class PostsController extends Controller
     public function store(StorePost $request)
     {
         $validated = $request->validated();
+        $validated['user_id'] = $request->user()->id;
         $post = BlogPost::create($validated);
 
         $request->session()->flash('status', 'Meme was successfully created!');
@@ -64,7 +70,14 @@ class PostsController extends Controller
      */
     public function show($id)
     {
-        return view('posts.show', ['post' => BlogPost::with('comment')->findOrFail($id)]);
+//        return view('posts.show', [
+//            'post' => BlogPost::with(['comment' => function ($query) {
+//                return $query->latest();
+//            }])->findOrFail($id)
+//        ]);
+        return view('posts.show', [
+            'post' => BlogPost::with('comment')->findOrFail($id)
+        ]);
     }
 
     /**

@@ -15,6 +15,21 @@
     <div class ='alert alert-info'>New Meme!</div>
 @endif
 
+<div class = 'mb-3'>
+    @can('update', $post)
+        <a href = '{{ route('posts.edit', ['post' => $post->id]) }}' class = 'btn btn-primary'>
+            Edit
+        </a>
+    @endcan
+    @can('delete', $post)
+        <form class = 'd-inline' action = '{{  route('posts.destroy', ['post' => $post->id]) }}' method = 'POST'>
+            @csrf
+            @method('DELETE')
+            <input type = 'submit' value = 'Delete' onclick = "return confirm('Are you sure you want to delete this meme?')" class = 'btn btn-primary'>
+        </form>
+    @endcan
+</div>
+
 <h4>Comments Section</h4>
 @forelse($post->comment as $comm)
     <p>
