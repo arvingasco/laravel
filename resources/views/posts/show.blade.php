@@ -21,13 +21,16 @@
             Edit
         </a>
     @endcan
-    @can('delete', $post)
-        <form class = 'd-inline' action = '{{  route('posts.destroy', ['post' => $post->id]) }}' method = 'POST'>
-            @csrf
-            @method('DELETE')
-            <input type = 'submit' value = 'Delete' onclick = "return confirm('Are you sure you want to delete this meme?')" class = 'btn btn-primary'>
-        </form>
-    @endcan
+
+    @if(!$post->trashed())
+        @can('delete', $post)
+            <form class = 'd-inline' action = '{{  route('posts.destroy', ['post' => $post->id]) }}' method = 'POST'>
+                @csrf
+                @method('DELETE')
+                <input type = 'submit' value = 'Delete' onclick = "return confirm('Are you sure you want to delete this meme?')" class = 'btn btn-primary'>
+            </form>
+        @endcan
+    @endif
 </div>
 
 <h4>Comments Section</h4>
